@@ -1,0 +1,9 @@
+apache-airflow==2.2.5
+apache-airflow-providers-apache-spark
+apache-airflow-providers-amazon
+apache-airflow-providers-postgres
+apache-airflow-providers-docker
+flask-session==0.3.2
+psycopg2
+pendulum<3.0
+docker

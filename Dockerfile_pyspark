@@ -1,0 +1,62 @@
+
+# Ubuntu Debian Image
+FROM debian:bullseye-slim
+
+# Set environment variables to prevent Python from writing .pyc files and buffering output
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Seting some environment variables
+ENV HADOOP_AWS_VERSION=3.3.4
+ENV AWS_SDK_VERSION=1.12.524
+ENV SPARK_CLASSPATH=$SPARK_HOME/jars/*
+ENV PYSPARK_PYTHON=/usr/bin/python
+ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python
+ENV AWS_REGION=sa-east-1
+
+# Downloading the system's dependencies
+RUN apt-get update && apt-get install -y \
+    openjdk-11-jdk \
+    python3 python3-pip \
+    procps \
+    wget \
+    curl \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Installing Python libraries that are available on the requirements-spark file
+RUN pip install --upgrade pip
+COPY requirements_spark.txt .
+RUN pip install -r requirements_spark.txt
+
+# Downloading Spark Version 3.5.4
+RUN curl -o spark.tgz https://downloads.apache.org/spark/spark-3.5.4/spark-3.5.4-bin-hadoop3.tgz && \
+    tar -xzf spark.tgz -C /opt && \
+    mv /opt/spark-3.5.4-bin-hadoop3 /opt/spark && \
+    rm spark.tgz
+
+ENV SPARK_HOME=/opt/spark
+ENV PATH=$PATH:/opt/spark/bin
+
+# Downloading jars for hadoop and AWS
+RUN curl -o $SPARK_HOME/jars/hadoop-aws-${HADOOP_AWS_VERSION}.jar \
+    https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_AWS_VERSION}/hadoop-aws-${HADOOP_AWS_VERSION}.jar && \
+    curl -o $SPARK_HOME/jars/aws-java-sdk-bundle-${AWS_SDK_VERSION}.jar \
+    https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/${AWS_SDK_VERSION}/aws-java-sdk-bundle-${AWS_SDK_VERSION}.jar
+
+# Writing the contents of the append-configs-aws.conf file to the actual spark-defaults folder 
+COPY append-configs-aws.conf /tmp/
+RUN cat /tmp/append-configs-aws.conf >> $SPARK_HOME/conf/spark-defaults.conf && \
+    rm /tmp/append-configs-aws.conf
+
+# Setting our working directory
+WORKDIR /app
+
+# Copying application files
+
+COPY . /app
+
+# Exposing Airflow webserver port
+EXPOSE 4040

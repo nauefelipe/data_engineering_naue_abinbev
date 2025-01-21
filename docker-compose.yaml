@@ -1,0 +1,47 @@
+
+services:
+  postgres:
+    image: postgres:12
+    container_name: postgres
+    env_file:
+      - .env  # Load environment variables from from the .env file
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    healthcheck:
+      test: ["CMD", "pg_isready -U airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile_airflow
+    container_name: airflow
+    volumes:
+      - ./dags:/app/dags
+      - ./logs:/app/logs
+      - ./plugins:/app/plugins
+      - ./entrypoint.sh:/entrypoint.sh
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dockerfile_pyspark:/app/dockerfile_pyspark
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: ${AIRFLOW__CORE__DAGS_FOLDER}
+      AIRFLOW__CORE__BASE_LOG_FOLDER: ${AIRFLOW__CORE__BASE_LOG_FOLDER}
+      AIRFLOW__CORE__PLUGINS_FOLDER: ${AIRFLOW__CORE__PLUGINS_FOLDER}
+    ports:
+      - "8080:8080" # Airflow's webserver port
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
