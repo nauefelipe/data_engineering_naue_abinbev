@@ -41,8 +41,9 @@ With the Airflow container up and running, a DAG will run executing these tasks:
 ## Requirements:
 - Docker Desktop (Docker Compose version v2.27.0-desktop.2)
 - git (to clone this repository)
-- AWS S3 Access (you'll need to input your access keys in the .env file)
-- AWS Athena
+- AWS S3 (AmazonS3FullAccess)
+- AWS Athena (AmazonAthenaFullAccess)
+- AWS Access keys
 - Three S3 Buckets (With the Bucket Versioning option disabled during creation so we avoid duplicate data)
 
 ## Setting up the project
@@ -56,8 +57,9 @@ cd data_engineering_naue_abinbeb
 
 ## 2. If you're running on Windows 10 or 11, you might want to check some Docker Configs (Optional)
 - If you're downloading Docker Desktop for the first time, check the option designed to **enable WSL 2** during the installation
+
 After downloading Docker Desktop, you should check if you have this feature enabled:
-- In you BIOS, make sure that you have **virtualization enabled** enabled ()
+- In you BIOS, make sure that you have **virtualization enabled**
 
 You can test if your Docker installation is working correctly running the following command on a Command Prompt:
 ```
@@ -108,9 +110,17 @@ There, you'll be able to see the data inserted during the ETL process in the thr
 You will also be able to query the data on S3'S gold layer through AWS Athena
 
 If it's your first time using AWS Athena, you'll need to specify an S3 bucket. 
-In the Settings section, you will find an option to specify the Query result location. 
+
+In the Settings section of the Athena Console, you will find an option to specify the Query result location. 
+
 Clicking there, you 'll have to enter an S3 path where the results will be stored
 - Enter the S3 bucket path (e.g., s3://gold-layer-naue-abinbev/athena/results/)
+
+On the Athena console, you can run this query to get the results from the gold layer: 
+```
+SELECT * FROM "gold_layer_naue_abinbev_db"."curated_brewery_data" limit 50 
+```
+
 
 ## Monitoring/Alerting
 
@@ -123,4 +133,4 @@ Clicking there, you 'll have to enter an S3 path where the results will be store
 ## Contact Information
 Feel free to reach out to me on LinkedIn!
 
-[LinkedIn](https://www.linkedin.com/in/nauefelipe/)
+## [LinkedIn](https://www.linkedin.com/in/nauefelipe/) ##
