@@ -51,11 +51,13 @@ def test_columns_validation(silver_layer, dummy_data):
 
 def test_duplicated_data(silver_layer, dummy_data):
     """
-    Testing if the function that catches duplicated id's is working
+    Testing if the function that treats duplicated id's is working
     """
-    with pytest.raises(ValueError) as e:
-        # Applying the class's function to see if it will raise an exception
-        silver_layer.check_unique_id(dummy_data)
+
+    result_df = silver_layer.treat_duplicated_ids(dummy_data)
+    result_data = result_df.collect()
+    # Checking that the resulting DataFrame only has unique IDs
+    assert len(result_data) == 1
 
 
 def test_transformation(silver_layer, correct_data):

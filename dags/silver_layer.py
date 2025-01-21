@@ -60,7 +60,7 @@ class SilverLayer:
         else:
             raise ValueError(f"Column schema mismatch")
         
-    def check_unique_id(self, df):
+    def treat_duplicated_ids(self, df):
         """
         This function checks if the 'id' column has any duplicates
         Since it's an id, It's suppose to be a unique identifier
@@ -74,10 +74,12 @@ class SilverLayer:
         duplicate_count = duplicates.count()
         
         if duplicate_count > 0:
-            self.logger.error(f"There are {duplicate_count} duplicated id's in the data.")
-            raise ValueError("Duplicate 'id' values found in the DataFrame.")
+            # Removing duplicates
+            df_unique = df.dropDuplicates(["id"])
+            self.logger.info("Duplicates have been removed from the DataFrame.")
+            return df_unique
         else:
-            self.logger.info("Unique 'id' validation test has passed.")
+            return df
             
     def transforming_data(self, df):
         """
@@ -189,7 +191,7 @@ if __name__ == "__main__":
     df = silver_layer.get_data_from_bronze()
     try:
         silver_layer.checking_column_schema(df)
-        silver_layer.check_unique_id(df)
+        silver_layer.treat_duplicated_ids(df)
     except Exception as e:
         raise e
     if df is not None:

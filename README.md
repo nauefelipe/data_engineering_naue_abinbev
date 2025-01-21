@@ -52,7 +52,7 @@ With the Airflow container up and running, a DAG will run executing these tasks:
 With Git and Docker installed, you can proceed to run these commands
 ```
 git clone https://github.com/nauefelipe/data_engineering_naue_abinbev.git
-cd data_engineering_naue_abinbeb
+cd data_engineering_naue_abinbev
 ```
 
 ## 2. If you're running on Windows 10 or 11, you might want to check some Docker Configs (Optional)
